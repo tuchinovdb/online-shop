@@ -11,7 +11,7 @@ if (isset($_POST['name'])) {
     if (strlen($name) < 2) {
         $errors['name'] = 'Имя должно содержать не менее двух символов';
     }
-    } else {
+} else {
     $errors['name'] = 'Укажите имя';
 }
 
@@ -40,13 +40,13 @@ if (isset($_POST['psw'])) {
     if (strlen($password) < 6) {
         $errors['psw'] = 'Пароль должен содержать не менее шести символов';
     }
-    } else  {
+} else  {
     $errors['psw'] = 'Придумайте пароль';
 }
 
 if (isset($_POST['psw-repeat'])) {
     $passwordRep = $_POST['psw-repeat'];
-    } else {
+} else {
     $errors['psw-repeat'] = 'Повторите пароль';
 }
 
