@@ -1,70 +1,21 @@
 <?php
 session_start();
+
+require_once 'validation.php';
+
 $pdo = new PDO('pgsql:host=postgres_db;port=5432;dbname=mydb', 'user', 'pass', [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 ]);
 
-$errors = [];
+$errors = validateRegistration($_POST, $pdo);
 
-$name = '';
-$email = '';
-$password = '';
-$passwordRep = '';
-
-
-if (isset($_POST['name']) && trim($_POST['name']) !== '') {
-    $name = trim($_POST['name']);
-    if (strlen($name) < 2) {
-        $errors['name'] = 'Имя должно содержать не менее двух символов';
-    }
-} else {
-    $errors['name'] = 'Укажите имя';
-}
-
-
-if (isset($_POST['email']) && trim($_POST['email']) !== '') {
-    $email = trim($_POST['email']);
-    if (strlen($email) < 3) {
-        $errors['email'] = 'Email должен содержать не менее трёх символов';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors['email'] = 'Email некорректный';
-    } else {
-        // Проверка уникальности
-        $checkStmt = $pdo->prepare("SELECT id FROM users WHERE email = :email");
-        $checkStmt->execute([':email' => $email]);
-        if ($checkStmt->fetch()) {
-            $errors['email'] = 'Пользователь с таким email уже существует';
-        }
-    }
-} else {
-    $errors['email'] = 'Укажите email';
-}
-
-
-if (isset($_POST['psw']) && trim($_POST['psw']) !== '') {
-    $password = trim($_POST['psw']);
-    if (strlen($password) < 6) {
-        $errors['psw'] = 'Пароль должен содержать не менее шести символов';
-    }
-} else {
-    $errors['psw'] = 'Придумайте пароль';
-}
-
-
-if (isset($_POST['psw-repeat']) && trim($_POST['psw-repeat']) !== '') {
-    $passwordRep = trim($_POST['psw-repeat']);
-    if (!isset($errors['psw'])) {
-        if ($password !== $passwordRep) {
-            $errors['psw-repeat'] = 'Пароли не совпадают';
-        }
-    }
-} else {
-    $errors['psw-repeat'] = 'Повторите пароль';
-}
-
-
+// Если ошибок нет — регистрируем пользователя
 if (empty($errors)) {
+    $name = trim($_POST['name']);
+    $email = trim($_POST['email']);
+    $password = trim($_POST['psw']);
+
     $hasPassword = password_hash($password, PASSWORD_DEFAULT);
 
     $stmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (:name, :email, :password) RETURNING id");
@@ -74,20 +25,14 @@ if (empty($errors)) {
         ':password' => $hasPassword
     ]);
 
-
     $newUserId = $stmt->fetchColumn();
-
     $_SESSION['user_id'] = $newUserId;
-
 
     echo "<h2>Регистрация успешна!</h2>";
     echo "<h3>Данные пользователя:</h3>";
     echo "<pre><strong>ID: " . htmlspecialchars($newUserId) . "</strong></pre>";
     echo "<pre><strong>Имя: " . htmlspecialchars($name) . "</strong></pre>";
     echo "<pre><strong>Email: " . htmlspecialchars($email) . "</strong></pre>";
-
-
-    // Мета-тег для автоматического редиректа через 3 секунды
     echo '<meta http-equiv="refresh" content="3;url=/catalog.php">';
     echo '<p>Вы будете перенаправлены в каталог через 3 секунды. <a href="/catalog.php">Нажмите здесь</a>, если не хотите ждать.</p>';
 
