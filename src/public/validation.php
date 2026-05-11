@@ -8,14 +8,13 @@ function validateRegistration(array $data, PDO $pdo): array
     $password = isset($data['psw']) ? trim($data['psw']) : '';
     $passwordRep = isset($data['psw-repeat']) ? trim($data['psw-repeat']) : '';
 
-    // Проверка имени
+  //проверка имени
     if ($name === '') {
         $errors['name'] = 'Укажите имя';
     } elseif (strlen($name) < 2) {
         $errors['name'] = 'Имя должно содержать не менее двух символов';
     }
-
-    // Проверка email
+    //проверка EMAIL
     if ($email === '') {
         $errors['email'] = 'Укажите email';
     } elseif (strlen($email) < 3) {
@@ -31,17 +30,17 @@ function validateRegistration(array $data, PDO $pdo): array
         }
     }
 
-    // Проверка пароля
+    //проверка пароля
     if ($password === '') {
         $errors['psw'] = 'Придумайте пароль';
     } elseif (strlen($password) < 6) {
         $errors['psw'] = 'Пароль должен содержать не менее шести символов';
     }
 
-    // Проверка повтора пароля
+    //проверка повтора пароля
     if ($passwordRep === '') {
         $errors['psw-repeat'] = 'Повторите пароль';
-    } elseif (!isset($errors['psw'])) { // сравниваем только если пароль без ошибок
+    } elseif (!isset($errors['psw'])) {
         if ($password !== $passwordRep) {
             $errors['psw-repeat'] = 'Пароли не совпадают';
         }
