@@ -1,14 +1,20 @@
 <div class="login">
     <div class="login-triangle"></div>
-
     <h2 class="login-header">Log in</h2>
-
     <form class="login-container" action="handle-login.php" method="POST">
-        <p><input type="email" name="username" placeholder="Email"></p>
+        <p><input type="email" name="username" placeholder="Email" value="<?php echo htmlspecialchars($email ?? ''); ?>"></p>
         <p><input type="password" name="password" placeholder="Password"></p>
         <p><input type="submit" value="Log in"></p>
     </form>
+    <?php if (!empty($errors)): ?>
+        <div style="color: red; margin-bottom: 10px;">
+            <?php foreach ($errors as $field => $message): ?>
+                <p><?php echo htmlspecialchars($message); ?></p>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 </div>
+
 
 <style>
     @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700);

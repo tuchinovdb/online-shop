@@ -1,27 +1,34 @@
 <?php
+session_start();
 
-$username = $_POST['username'] ?? '';
-$password = $_POST['password'] ?? '';
+require_once 'validate_login.php';
 
-$pdo = new PDO('pgsql:host=postgres_db;port=5432;dbname=mydb', 'user', 'pass');
-$stmt = $pdo ->prepare("SELECT * FROM users WHERE email = :email");
-$stmt->execute(['email' => $username]);
 
-$user = $stmt -> fetch();
+$email = trim($_POST['username'] ?? '');
+$password = trim($_POST['password'] ?? '');
 
-$errors = [];
 
-if ($user === false) {
-$errors['username'] = "Логин или пароль указанны неверно , попробуйте еще раз";
-} else {
-    $passwordDb = $user ['password'];
+$pdo = new PDO('pgsql:host=postgres_db;port=5432;dbname=mydb', 'user', 'pass', [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+]);
 
-    if (password_verify($password, $passwordDb)) {
-        setcookie('user_id', $user['id']);
-        header('Location: /catalog.php');
-    } else {
-        $errors['username'] = 'Логин или пароль указанны неверно , попробуйте еще раз';
-    }
+
+$errors = validateLogin($email, $password, $pdo);
+
+
+if (empty($errors))
+{
+    $stmt = $pdo->prepare("SELECT id FROM users WHERE email = :email");
+    $stmt->execute([':email' => $email]);
+    $userId = $stmt->fetchColumn();
+
+
+    $_SESSION['user_id'] = $userId;
+
+    header('Location: /catalog.php');
+    exit;
 }
+
 
 require_once './login-form.php';

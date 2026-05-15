@@ -10,7 +10,7 @@ $pdo = new PDO('pgsql:host=postgres_db;port=5432;dbname=mydb', 'user', 'pass', [
 
 $errors = validateRegistration($_POST, $pdo);
 
-// Если ошибок нет — регистрируем пользователя
+
 if (empty($errors)) {
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
