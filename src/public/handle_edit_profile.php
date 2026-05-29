@@ -23,7 +23,7 @@ if (!empty($errors)) {
     // Сохраняем ошибки и старые значения в сессии, редиректим обратно
     $_SESSION['errors'] = $errors;
     $_SESSION['old_input'] = $data;
-    header('Location: /edit-profile.php');
+    header('Location: /edit_profile.php');
     exit;
 }
 
